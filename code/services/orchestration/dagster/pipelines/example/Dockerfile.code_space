@@ -18,6 +18,8 @@ COPY common ${DAGSTER_APP_PATH}/common
 COPY example ${DAGSTER_APP_PATH}/example
 
 # Run dagster gRPC server on port 4000
+RUN pip install -r ${DAGSTER_APP_PATH}/common/requirements.common.txt \
+    && pip install -r ${DAGSTER_APP_PATH}/example/requirements.code_space.txt
 
 EXPOSE 4000
 
