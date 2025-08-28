@@ -1,0 +1,10 @@
+# IMPORTANT!: When doing project set the latest explicit stable versions
+
+# postgres
+dagster-postgres==0.27.7
+
+# minio
+minio==7.2.16
+
+# postgres
+psycopg[binary]==3.2.9
