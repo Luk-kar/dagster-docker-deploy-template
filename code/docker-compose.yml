@@ -31,7 +31,7 @@ services:
   # webserver.
   dagster_code_example:
     build:
-      context: .
+      context: ./services/orchestration/dagster/pipelines
       dockerfile: ./Dockerfile_user_code
     container_name: ${DAGSTER_CODE_EXAMPLE_NAME}
     image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
