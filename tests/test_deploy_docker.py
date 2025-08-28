@@ -19,9 +19,11 @@ def docker_service_up(docker_compose_file):
         return
 
     try:
-        subprocess.check_output(["docker-compose", "-f", docker_compose_file, "stop"])
         subprocess.check_output(
-            ["docker-compose", "-f", docker_compose_file, "rm", "-f"]
+            ["docker", "compose", "-f", docker_compose_file, "stop"]
+        )
+        subprocess.check_output(
+            ["docker", "compose", "-f", docker_compose_file, "rm", "-f"]
         )
     except subprocess.CalledProcessError:
         pass
@@ -33,13 +35,13 @@ def docker_service_up(docker_compose_file):
     assert build_process.returncode == 0
 
     up_process = subprocess.Popen(
-        ["docker-compose", "-f", docker_compose_file, "up", "--no-start"]
+        ["docker", "compose", "-f", docker_compose_file, "up", "--no-start"]
     )
     up_process.wait()
     assert up_process.returncode == 0
 
     start_process = subprocess.Popen(
-        ["docker-compose", "-f", docker_compose_file, "start"]
+        ["docker", "compose", "-f", docker_compose_file, "start"]
     )
     start_process.wait()
     assert start_process.returncode == 0
@@ -47,9 +49,11 @@ def docker_service_up(docker_compose_file):
     try:
         yield
     finally:
-        subprocess.check_output(["docker-compose", "-f", docker_compose_file, "stop"])
         subprocess.check_output(
-            ["docker-compose", "-f", docker_compose_file, "rm", "-f"]
+            ["docker", "compose", "-f", docker_compose_file, "stop"]
+        )
+        subprocess.check_output(
+            ["docker", "compose", "-f", docker_compose_file, "rm", "-f"]
         )
 
 
@@ -133,9 +137,7 @@ mutation($runId: String!) {
 
 @pytest.fixture
 def service_with_logs():
-    with docker_service_up(
-        file_relative_path(__file__, "../from_source/docker-compose.yml")
-    ):
+    with docker_service_up(file_relative_path(__file__, "./docker-compose.yml")):
         try:
             yield
         finally:
