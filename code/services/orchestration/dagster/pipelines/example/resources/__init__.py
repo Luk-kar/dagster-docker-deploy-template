@@ -1,3 +1,10 @@
+# ======================================================
+# Resources are configurable objects that
+# provide standardized access to external systems, services, or tools
+# (such as databases, APIs, or storage) for use in assets, ops,
+# and pipeline components
+# ======================================================
+
 # from dagster import Definitions
 # from dagster_dbt import DbtCliResource
 # from subject.assets import DBT_PROJECT_DIR

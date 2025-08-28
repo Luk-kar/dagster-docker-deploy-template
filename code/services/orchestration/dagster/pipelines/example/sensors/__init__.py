@@ -1,3 +1,12 @@
+# ======================================================
+# Sensor is mechanisms that automatically
+# trigger jobs or actions
+# in response to specific internal or external events, such as
+# files arriving, asset changes, or job status updates,
+# by polling for conditions at regular intervals and
+# acting when criteria are met.
+# ======================================================
+
 ## dagster
 # from dagster import SensorDefinition, RunRequest, sensor
 
