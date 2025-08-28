@@ -34,13 +34,13 @@ services:
       context: .
       dockerfile: ./Dockerfile_user_code
     container_name: ${DAGSTER_CODE_EXAMPLE_NAME}
-    image: docker_example_user_code_image
+    image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
     restart: always
     environment:
       DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
       DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
       DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
-      DAGSTER_CURRENT_IMAGE: "docker_example_user_code_image"
+      DAGSTER_CURRENT_IMAGE: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
     networks:
       - ${PIPELINE_NETWORK_NAME}
 
