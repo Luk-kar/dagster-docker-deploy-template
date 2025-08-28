@@ -67,6 +67,11 @@ services:
     build:
       context: ./services/orchestration/dagster/control_plane
       dockerfile: ./Dockerfile.dagster
+      args:
+        - DAGSTER_POSTGRES_PORT=${DAGSTER_POSTGRES_PORT}
+        - DAGSTER_CODE_USER_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
+        - DAGSTER_CODE_USER_NAME=${DAGSTER_CODE_EXAMPLE_NAME}
+        - PIPELINE_NETWORK_NAME=${PIPELINE_NETWORK_NAME}
     entrypoint:
       - dagster-webserver
       - -h
@@ -104,6 +109,11 @@ services:
     build:
       context: ./services/orchestration/dagster/control_plane
       dockerfile: ./Dockerfile.dagster
+      args:
+        - DAGSTER_POSTGRES_PORT=${DAGSTER_POSTGRES_PORT}
+        - DAGSTER_CODE_USER_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
+        - DAGSTER_CODE_USER_NAME=${DAGSTER_CODE_EXAMPLE_NAME}
+        - PIPELINE_NETWORK_NAME=${PIPELINE_NETWORK_NAME}
     entrypoint:
       - dagster-daemon
       - run

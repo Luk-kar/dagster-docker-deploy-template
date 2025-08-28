@@ -3,18 +3,48 @@
 
 FROM python:3.10-slim
 
-RUN pip install \
-    dagster \
-    dagster-graphql \
-    dagster-webserver \
-    dagster-postgres \
-    dagster-docker
+# Install Dagster and its dependencies
+RUN pip install --upgrade pip
+COPY requirements.control_plane.txt .
+RUN pip install -r requirements.control_plane.txt
+
+# Install config generator dependencies
+COPY config_generators/requirements.config.txt ./config_generators/
+RUN pip install -r config_generators/requirements.config.txt
 
 # Set $DAGSTER_HOME and copy dagster instance and workspace YAML there
 ENV DAGSTER_HOME=/opt/dagster/dagster_home/
-
 RUN mkdir -p $DAGSTER_HOME
 
-COPY dagster.yaml workspace.yaml $DAGSTER_HOME
+# Copy config generators and templates
+COPY config_generators/ ./config_generators/
+
+# Set environment variables for the build (these will be available during build)
+ARG DAGSTER_POSTGRES_PORT
+ARG PIPELINE_NETWORK_NAME
+
+ARG DAGSTER_CODE_USER_PORT
+ARG DAGSTER_CODE_USER_NAME
+# ARG DAGSTER_CODE_USER_002_PORT <-- IMPORTANT!: Add new code space here
+# ARG DAGSTER_CODE_USER_002_NAME
+# Expected pattern: DAGSTER_CODE_<IDENTIFIER>_NAME/CODE
+
+
+ENV DAGSTER_POSTGRES_PORT=${DAGSTER_POSTGRES_PORT}
+ENV PIPELINE_NETWORK_NAME=${PIPELINE_NETWORK_NAME}
+
+ENV DAGSTER_CODE_USER_PORT=${DAGSTER_CODE_USER_PORT}
+ENV DAGSTER_CODE_USER_NAME=${DAGSTER_CODE_USER_NAME}
+# ENV DAGSTER_CODE_USER_002_PORT=${DAGSTER_CODE_USER_002_PORT} <-- IMPORTANT!: Add new code space here
+# ENV DAGSTER_CODE_USER_002_NAME=${DAGSTER_CODE_USER_002_NAME}
+
+# Generate configuration files
+WORKDIR /
+RUN python config_generators/dagster_generator.py
+RUN python config_generators/workspace_generator.py
+
+# Copy generated configuration files to DAGSTER_HOME
+RUN cp config_generators/dagster.yaml $DAGSTER_HOME/
+RUN cp config_generators/workspace.yaml $DAGSTER_HOME/
 
 WORKDIR $DAGSTER_HOME

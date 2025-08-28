@@ -21,15 +21,11 @@ run_launcher:
       - DAGSTER_POSTGRES_PASSWORD
       - DAGSTER_POSTGRES_DB
     network: {{ PIPELINE_NETWORK_NAME }}
+    network: pipeline_network
     container_kwargs:
-      volumes:
-        /tmp/dagster_storage:
-          bind: /opt/dagster/dagster_home/storage
-          mode: rw
-        /var/run/docker.sock:
-          bind: /var/run/docker.sock
-          mode: rw
-      # https://github.com/dagster-io/dagster/discussions/9739
+      volumes: # Make docker client accessible to any launched containers as well
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /tmp/io_manager_storage:/tmp/io_manager_storage
       auto_remove: true
 
 run_storage:
