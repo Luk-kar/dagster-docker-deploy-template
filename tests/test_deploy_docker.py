@@ -165,7 +165,7 @@ def test_deploy_docker(service_with_logs):
 
     start_time = time.time()
 
-    webserver_host = os.environ.get("DEPLOY_DOCKER_WEBSERVER_HOST", "localhost")
+    webserver_host = os.environ.get("DEPLOY_DAGSTER_WEBSERVER_HOST", "localhost")
 
     while True:
         if time.time() - start_time > 15:
