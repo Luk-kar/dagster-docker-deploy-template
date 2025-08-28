@@ -1,0 +1,14 @@
+# Outlines the data pipelines
+# (organized collections of tasks that process and move data)
+# and resources (such as external databases, APIs, and storage services)
+# that are active and accessible in a given workspace,
+# allowing Dagster to manage these components collectively for a specific project environment.
+# This setup ensures that only the pipelines and resources explicitly defined in workspace.yaml
+# are available for use in the Dagster environment.
+
+load_from:
+
+  - grpc_server:
+      host: dagster_code_subject
+      port: 4000
+      location_name: dagster_code_subject
