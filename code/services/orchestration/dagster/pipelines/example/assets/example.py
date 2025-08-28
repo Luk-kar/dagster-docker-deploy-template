@@ -12,5 +12,3 @@ def example_asset(context: dg.AssetExecutionContext):
 partitioned_asset_job = dg.define_asset_job(
     "partitioned_job", selection=[example_asset]
 )
-
-defs = dg.Definitions(assets=[example_asset], jobs=[partitioned_asset_job])

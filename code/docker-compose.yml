@@ -32,7 +32,7 @@ services:
   dagster_code_example:
     build:
       context: ./services/orchestration/dagster/pipelines
-      dockerfile: ./Dockerfile_user_code
+      dockerfile: ./example/Dockerfile_user_code
     container_name: ${DAGSTER_CODE_EXAMPLE_NAME}
     image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
     restart: always

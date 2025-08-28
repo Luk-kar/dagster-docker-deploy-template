@@ -12,7 +12,10 @@ RUN pip install \
 
 WORKDIR /opt/dagster/app
 
-COPY definitions.py /opt/dagster/app
+ARG DAGSTER_APP_PATH=/opt/dagster/app
+
+COPY common ${DAGSTER_APP_PATH}/common
+COPY example ${DAGSTER_APP_PATH}/example
 
 # Run dagster gRPC server on port 4000
 
@@ -20,4 +23,4 @@ EXPOSE 4000
 
 # CMD allows this to be overridden from run launchers or executors that want
 # to run other commands against your repository
-CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "definitions.py"]
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "example/definitions.py"]
