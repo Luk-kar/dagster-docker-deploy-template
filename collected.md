@@ -4,16 +4,9 @@ scheduler:
   module: dagster.core.scheduler
   class: DagsterDaemonScheduler
 
-
 run_coordinator:
   module: dagster.core.run_coordinator
   class: QueuedRunCoordinator
-  config:
-    max_concurrent_runs: 5
-    tag_concurrency_limits:
-      - key: "operation"
-        value: "example"
-        limit: 5
 
 run_launcher:
   module: dagster_docker
@@ -73,25 +66,6 @@ event_log_storage:
 
 ```
 
-`./code/definitions.py`:
-```
-import dagster as dg
-
-
-@dg.asset(
-    op_tags={"operation": "example"},
-    partitions_def=dg.DailyPartitionsDefinition("2024-01-01"),
-)
-def example_asset(context: dg.AssetExecutionContext):
-    context.log.info(context.partition_key)
-
-
-partitioned_asset_job = dg.define_asset_job("partitioned_job", selection=[example_asset])
-
-defs = dg.Definitions(assets=[example_asset], jobs=[partitioned_asset_job])
-
-```
-
 `./code/docker-compose.yml`:
 ```
 version: "3.7"
@@ -121,11 +95,11 @@ services:
   # Multiple containers like this can be deployed separately - each just needs to run on
   # its own port, and have its own entry in the workspace.yaml file that's loaded by the
   # webserver.
-  docker_example_user_code:
+  dagster_code_example:
     build:
       context: .
       dockerfile: ./Dockerfile_user_code
-    container_name: docker_example_user_code
+    container_name: dagster_code_example
     image: docker_example_user_code_image
     restart: always
     environment:
@@ -168,7 +142,7 @@ services:
     depends_on:
       docker_example_postgresql:
         condition: service_healthy
-      docker_example_user_code:
+      dagster_code_example:
         condition: service_started
 
   # This service runs the dagster-daemon process, which is responsible for taking runs
@@ -194,7 +168,7 @@ services:
     depends_on:
       docker_example_postgresql:
         condition: service_healthy
-      docker_example_user_code:
+      dagster_code_example:
         condition: service_started
 
 networks:
@@ -245,13 +219,15 @@ RUN pip install \
 
 WORKDIR /opt/dagster/app
 
-COPY definitions.py /opt/dagster/app
+COPY repo.py /opt/dagster/app
 
 # Run dagster gRPC server on port 4000
 
 EXPOSE 4000
 
-CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "definitions.py"]
+# CMD allows this to be overridden from run launchers or executors that want
+# to run other commands against your repository
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "repo.py"]
 
 ```
 
@@ -263,6 +239,49 @@ CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "definitions
 `./code/README.md`:
 ```
 View this example in the Dagster docs at https://docs.dagster.io/examples/deploy_docker.
+
+```
+
+`./code/repo.py`:
+```
+from dagster import FilesystemIOManager, graph, op, repository, schedule
+from dagster_docker import docker_executor
+
+
+@op
+def hello():
+    return 1
+
+
+@op
+def goodbye(foo):
+    if foo != 1:
+        raise Exception("Bad io manager")
+    return foo * 2
+
+
+@graph
+def my_graph():
+    goodbye(hello())
+
+
+my_job = my_graph.to_job(name="my_job")
+
+my_step_isolated_job = my_graph.to_job(
+    name="my_step_isolated_job",
+    executor_def=docker_executor,
+    resource_defs={"io_manager": FilesystemIOManager(base_dir="/tmp/io_manager_storage")},
+)
+
+
+@schedule(cron_schedule="* * * * *", job=my_job, execution_timezone="US/Central")
+def my_schedule(_context):
+    return {}
+
+
+@repository
+def deploy_docker_repository():
+    return [my_job, my_step_isolated_job, my_schedule]
 
 ```
 
@@ -283,22 +302,19 @@ skipsdist = True
 download = True
 passenv =
     CI_*
+    COVERALLS_REPO_TOKEN
     BUILDKITE*
-    DEPLOY_DOCKER_WEBSERVER_HOST
-    PYTEST_ADDOPTS
-    PYTEST_PLUGINS
-    DAGSTER_GIT_REPO_DIR
-install_command = python3 {env:DAGSTER_GIT_REPO_DIR}/scripts/uv-retry-install.py {opts} {packages}
+    DEPLOY_DAGSTER_WEBSERVER_HOST
+install_command = uv pip install {opts} {packages}
 deps =
   -e ../../python_modules/dagster[test]
   -e ../../python_modules/dagster-pipes
-  -e ../../python_modules/libraries/dagster-shared
 allowlist_externals =
   /bin/bash
   uv
 commands =
   !windows: /bin/bash -c '! pip list --exclude-editable | grep -e dagster'
-  pytest -vv -s {posargs}
+  pytest -c ../../pyproject.toml -vv {posargs}
 
 ```
 
@@ -307,7 +323,7 @@ commands =
 load_from:
   # Each entry here corresponds to a service in the docker-compose file that exposes user code.
   - grpc_server:
-      host: docker_example_user_code
+      host: dagster_code_example
       port: 4000
       location_name: "example_user_code"
 

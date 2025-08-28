@@ -25,11 +25,11 @@ services:
   # Multiple containers like this can be deployed separately - each just needs to run on
   # its own port, and have its own entry in the workspace.yaml file that's loaded by the
   # webserver.
-  docker_example_user_code:
+  dagster_code_example:
     build:
       context: .
       dockerfile: ./Dockerfile_user_code
-    container_name: docker_example_user_code
+    container_name: dagster_code_example
     image: docker_example_user_code_image
     restart: always
     environment:
@@ -72,7 +72,7 @@ services:
     depends_on:
       docker_example_postgresql:
         condition: service_healthy
-      docker_example_user_code:
+      dagster_code_example:
         condition: service_started
 
   # This service runs the dagster-daemon process, which is responsible for taking runs
@@ -98,7 +98,7 @@ services:
     depends_on:
       docker_example_postgresql:
         condition: service_healthy
-      docker_example_user_code:
+      dagster_code_example:
         condition: service_started
 
 networks:
