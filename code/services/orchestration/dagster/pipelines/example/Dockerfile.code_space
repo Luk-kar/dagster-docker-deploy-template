@@ -3,26 +3,30 @@ FROM python:3.10-slim
 # Checkout and install dagster libraries needed to run the gRPC server
 # exposing your repository to dagster-webserver and dagster-daemon, and to load the DagsterInstance
 
-RUN pip install \
-    dagster \
-    dagster-postgres \
-    dagster-docker
-
 # Add repository code
-
-WORKDIR /opt/dagster/app
-
+ARG DAGSTER_CODE_EXAMPLE_PORT
+ARG DAGSTER_CODE_EXAMPLE_NAME
 ARG DAGSTER_APP_PATH=/opt/dagster/app
+ARG CODE_SPACE=${DAGSTER_CODE_EXAMPLE_NAME#dagster_code_}
+ARG CODE_SPACE_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
 
 COPY common ${DAGSTER_APP_PATH}/common
-COPY example ${DAGSTER_APP_PATH}/example
+COPY example ${DAGSTER_APP_PATH}/${CODE_SPACE}
 
-# Run dagster gRPC server on port 4000
+# Update to the latest Python libraries repo list
+RUN pip install --upgrade pip
+
+# Install libs
 RUN pip install -r ${DAGSTER_APP_PATH}/common/requirements.common.txt \
-    && pip install -r ${DAGSTER_APP_PATH}/example/requirements.code_space.txt
+    && pip install -r ${DAGSTER_APP_PATH}/${CODE_SPACE}/requirements.code_space.txt
 
-EXPOSE 4000
+EXPOSE ${CODE_SPACE_PORT}
+
+WORKDIR ${DAGSTER_APP_PATH}
+ENV CODE_SPACE=${CODE_SPACE}
+ENV CODE_SPACE_PORT=${CODE_SPACE_PORT}
 
 # CMD allows this to be overridden from run launchers or executors that want
 # to run other commands against your repository
-CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "example/definitions.py"]
+CMD dagster api grpc -h 0.0.0.0 -p ${CODE_SPACE_PORT} -f ${CODE_SPACE}/definitions.py
+

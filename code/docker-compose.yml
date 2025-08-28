@@ -33,6 +33,9 @@ services:
     build:
       context: ./services/orchestration/dagster/pipelines
       dockerfile: ./example/Dockerfile.code_space
+      args:
+        - DAGSTER_CODE_EXAMPLE_NAME=${DAGSTER_CODE_EXAMPLE_NAME}
+        - DAGSTER_CODE_EXAMPLE_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
     container_name: ${DAGSTER_CODE_EXAMPLE_NAME}
     image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
     restart: always
@@ -41,6 +44,8 @@ services:
       DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
       DAGSTER_POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
       DAGSTER_CURRENT_IMAGE: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
+      DAGSTER_CODE_EXAMPLE_PORT: ${DAGSTER_CODE_EXAMPLE_PORT}
+      DAGSTER_CODE_EXAMPLE_NAME: ${DAGSTER_CODE_EXAMPLE_NAME}
     networks:
       - ${PIPELINE_NETWORK_NAME}
 
