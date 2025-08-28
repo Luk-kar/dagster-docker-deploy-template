@@ -56,14 +56,14 @@ services:
       - -h
       - "0.0.0.0"
       - -p
-      - "3000"
+      - "${DAGSTER_WEBSERVER_PORT}"
       - -w
       - workspace.yaml
     container_name: dagster_webserver
     expose:
-      - "3000"
+      - "${DAGSTER_WEBSERVER_PORT}"
     ports:
-      - "3000:3000"
+      - "${DAGSTER_WEBSERVER_PORT}:${DAGSTER_WEBSERVER_PORT}"
     environment:
       DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
       DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
