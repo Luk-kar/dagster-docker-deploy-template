@@ -77,14 +77,14 @@ services:
 
   # This service runs the dagster-daemon process, which is responsible for taking runs
   # off of the queue and launching them, as well as creating runs from schedules or sensors.
-  docker_example_daemon:
+  dagster_daemon:
     build:
       context: .
       dockerfile: ./Dockerfile_dagster
     entrypoint:
       - dagster-daemon
       - run
-    container_name: docker_example_daemon
+    container_name: dagster_daemon
     restart: on-failure
     environment:
       DAGSTER_POSTGRES_USER: "postgres_user"

@@ -147,9 +147,9 @@ def service_with_logs():
             )
             print("Daemon logs: ")  # noqa
             print(  # noqa
-                subprocess.check_output(
-                    ["docker", "logs", "docker_example_daemon"]
-                ).decode("unicode_escape")
+                subprocess.check_output(["docker", "logs", "dagster_daemon"]).decode(
+                    "unicode_escape"
+                )
             )
 
             print("User code logs: ")  # noqa
