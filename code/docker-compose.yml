@@ -65,8 +65,8 @@ services:
 
   dagster_webserver:
     build:
-      context: .
-      dockerfile: ./Dockerfile_dagster
+      context: ./services/orchestration/dagster/control_plane
+      dockerfile: ./Dockerfile.dagster
     entrypoint:
       - dagster-webserver
       - -h
@@ -102,8 +102,8 @@ services:
 
   dagster_daemon:
     build:
-      context: .
-      dockerfile: ./Dockerfile_dagster
+      context: ./services/orchestration/dagster/control_plane
+      dockerfile: ./Dockerfile.dagster
     entrypoint:
       - dagster-daemon
       - run
