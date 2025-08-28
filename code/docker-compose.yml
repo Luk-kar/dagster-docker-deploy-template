@@ -4,9 +4,9 @@ services:
   # This service runs the postgres DB used by dagster for run storage, schedule storage,
   # and event log storage. Depending on the hardware you run this Compose on, you may be able
   # to reduce the interval and timeout in the healthcheck to speed up your `docker-compose up` times.
-  docker_example_postgresql:
+  dagster_postgres:
     image: postgres:11
-    container_name: docker_example_postgresql
+    container_name: dagster_postgres
     environment:
       POSTGRES_USER: "postgres_user"
       POSTGRES_PASSWORD: "postgres_password"
@@ -70,7 +70,7 @@ services:
     networks:
       - docker_example_network
     depends_on:
-      docker_example_postgresql:
+      dagster_postgres:
         condition: service_healthy
       dagster_code_example:
         condition: service_started
@@ -96,7 +96,7 @@ services:
     networks:
       - docker_example_network
     depends_on:
-      docker_example_postgresql:
+      dagster_postgres:
         condition: service_healthy
       dagster_code_example:
         condition: service_started
