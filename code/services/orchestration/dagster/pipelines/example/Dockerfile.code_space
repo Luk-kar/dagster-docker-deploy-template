@@ -3,13 +3,14 @@ FROM python:3.10-slim
 # Checkout and install dagster libraries needed to run the gRPC server
 # exposing your repository to dagster-webserver and dagster-daemon, and to load the DagsterInstance
 
-# Add repository code
+# Build vars
 ARG DAGSTER_CODE_EXAMPLE_PORT
 ARG DAGSTER_CODE_EXAMPLE_NAME
 ARG DAGSTER_APP_PATH=/opt/dagster/app
 ARG CODE_SPACE=${DAGSTER_CODE_EXAMPLE_NAME#dagster_code_}
 ARG CODE_SPACE_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
 
+# Add repository code
 COPY common ${DAGSTER_APP_PATH}/common
 COPY example ${DAGSTER_APP_PATH}/${CODE_SPACE}
 
@@ -22,6 +23,7 @@ RUN pip install -r ${DAGSTER_APP_PATH}/common/requirements.common.txt \
 
 EXPOSE ${CODE_SPACE_PORT}
 
+# Set environment variables and working directory
 WORKDIR ${DAGSTER_APP_PATH}
 ENV CODE_SPACE=${CODE_SPACE}
 ENV CODE_SPACE_PORT=${CODE_SPACE_PORT}
