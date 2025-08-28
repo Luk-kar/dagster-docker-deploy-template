@@ -1,20 +1,8 @@
-from minio import Minio
-import psycopg
+# python
 import os
 
-
-def minio_client():
-
-    use_secure = (
-        True if os.getenv("DATALAKE_MINIO_SECURE", "False").lower() == "true" else False
-    )
-
-    return Minio(
-        endpoint=f"localhost:{os.getenv('DATALAKE_MINIO_PORT_API', '9000')}",
-        access_key=os.getenv("DATALAKE_MINIO_ROOT_USER"),
-        secret_key=os.getenv("DATALAKE_MINIO_ROOT_PASSWORD"),
-        secure=use_secure,
-    )
+# third-party
+import psycopg
 
 
 def postgres_client():
@@ -29,6 +17,5 @@ def postgres_client():
 
 
 all_resources = {
-    "minio_client": minio_client,
     "postgres_client": postgres_client,
 }
