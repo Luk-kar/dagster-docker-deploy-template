@@ -43,6 +43,8 @@ services:
         - DAGSTER_CODE_EXAMPLE_NAME=${DAGSTER_CODE_EXAMPLE_NAME}
         - DAGSTER_CODE_EXAMPLE_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
     container_name: ${DAGSTER_CODE_EXAMPLE_NAME}
+    ports:
+      - ${DAGSTER_CODE_EXAMPLE_PORT}:${DAGSTER_CODE_EXAMPLE_PORT}
     image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
     restart: always
     environment:
