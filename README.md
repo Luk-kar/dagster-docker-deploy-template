@@ -29,6 +29,8 @@ Follow this pattern to add another code location (code location):
    - `DAGSTER_CODE_ANALYTICS_PORT`
 3. **Update Compose service:**  
  Duplicate the `dagster_code_example` service in the `docker-compose.yaml`, rename it (e.g., `dagster_code_analytics`), and update its settings (image name, build context, environment, port matching your new directory and variables).
+4. **Update args:**
+ Update args `DAGSTER_CODE_ANALYTICS_NAME` and `DAGSTER_CODE_ANALYTICS_PORT` in the copied `Dockerfile.code_space`
 
 ## Example Compose Service Configuration
 ```yaml
