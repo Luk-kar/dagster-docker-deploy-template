@@ -83,17 +83,17 @@ DAGSTER_POSTGRES_DB=postgres_db
  git clone git@github.com:Luk-kar/dagster-docker-deploy.git
  cd dagster-docker-deploy
  ```
-1) Rename the `.env.example` to `.env`:
+2) Rename the `.env.example` to `.env`:
  ```
  cp ".env.example" ".env"
  ```
-1) Review and adjust values in .env and update code location entries in `docker-compose.yaml` as needed.”
-2) Build images:
+3) Review and adjust values in `.env` and update code location entries in `docker-compose.yaml` as needed.
+4) Build images:
  ``` 
  docker compose build
  ```
  This builds the Dagster webserver/daemon image and any user‑code images defined in the Compose file.
-1) Launch the stack:
+5) Launch the stack:
  ```
  docker compose up  
  ```
