@@ -80,7 +80,7 @@ DAGSTER_POSTGRES_DB=postgres_db
 
 1) Clone the repository.
  ```
- git clone git@github.com:Luk-kar/dagster-docker-deploy.git
+ git clone git@github.com:Luk-kar/dagster-docker-deploy-template.git
  cd dagster-docker-deploy
  ```
 2) Rename the `.env.example` to `.env`:
