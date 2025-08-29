@@ -93,6 +93,7 @@ DAGSTER_POSTGRES_DB=postgres_db
  docker compose build
  ```
  This builds the Dagster webserver/daemon image and any user‑code images defined in the Compose file.
+
 5) Launch the stack:
  ```
  docker compose up  
