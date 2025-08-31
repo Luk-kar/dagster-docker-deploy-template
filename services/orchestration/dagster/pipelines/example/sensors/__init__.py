@@ -5,6 +5,9 @@
 # files arriving, asset changes, or job status updates,
 # by polling for conditions at regular intervals and
 # acting when criteria are met.
+#
+# https://docs.dagster.io/guides/automate/asset-sensors
+#
 # ======================================================
 
 ## dagster

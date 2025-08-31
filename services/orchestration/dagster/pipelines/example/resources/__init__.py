@@ -3,6 +3,9 @@
 # provide standardized access to external systems, services, or tools
 # (such as databases, APIs, or storage) for use in assets, ops,
 # and pipeline components
+#
+# https://docs.dagster.io/dagster-basics-tutorial/resources
+#
 # ======================================================
 
 # from dagster import Definitions

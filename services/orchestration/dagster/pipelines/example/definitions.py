@@ -5,6 +5,9 @@
 # assets, jobs, schedules, sensors, and resources—should behave,
 # and the top-level Definitions object aggregates all these entities
 # for deployment and orchestration within a project.
+#
+# https://docs.dagster.io/guides/build/projects/moving-to-components/migrating-definitions
+#
 # ======================================================
 
 import dagster as dg
