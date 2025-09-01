@@ -27,10 +27,17 @@ Follow this pattern to add another code location (code location):
  Add environment variables in your `.env` or Compose config:  
    - `DAGSTER_CODE_ANALYTICS_NAME`  
    - `DAGSTER_CODE_ANALYTICS_PORT`
-3. **Update Compose service:**  
- Duplicate the `dagster_code_example` service in the `docker-compose.yaml`, rename it (e.g., `dagster_code_analytics`), and update its settings (image name, build context, environment, port matching your new directory and variables).
-4. **Update args:**
- Update args `DAGSTER_CODE_ANALYTICS_NAME` and `DAGSTER_CODE_ANALYTICS_PORT` in the copied `Dockerfile.code_space`
+   Follow the pattern: `DAGSTER_CODE_<IDENTIFIER>_NAME` and `DAGSTER_CODE_<IDENTIFIER>_PORT`
+3. **Update New Code Location service:**  
+ Duplicate the `dagster_code_example` service in the `docker-compose.yaml`, rename it (e.g., `dagster_code_analytics`), and update its settings (image name, build context, environment, port matching your new directory and variables if needed).
+4. **Update Dagster's Webserver and Daemon services:**  
+ In `Dockerfile.dagster`, add the ARG and ENV variables for your new code location:
+ Add ARG declarations after the existing example:
+ ```
+ ARG DAGSTER_CODE_ANALYTICS_PORT
+ ARG DAGSTER_CODE_ANALYTICS_NAME
+ ```
+
 
 ## Example Compose Service Configuration
 ```yaml
@@ -39,8 +46,8 @@ Follow this pattern to add another code location (code location):
       context: ./services/orchestration/dagster/pipelines
       dockerfile: ./analytics/Dockerfile.code_space
       args:
-        - DAGSTER_CODE_ANALYTICS_NAME=${DAGSTER_CODE_ANALYTICS_NAME}
-        - DAGSTER_CODE_ANALYTICS_PORT=${DAGSTER_CODE_ANALYTICS_PORT}
+        - DAGSTER_CODE_THIS_NAME=${DAGSTER_CODE_ANALYTICS_NAME}
+        - DAGSTER_CODE_THIS_PORT=${DAGSTER_CODE_ANALYTICS_PORT}
     container_name: ${DAGSTER_CODE_ANALYTICS_NAME}
     image: "${DAGSTER_CODE_ANALYTICS_NAME}_image"
     restart: always
@@ -51,8 +58,8 @@ Follow this pattern to add another code location (code location):
       WAREHOUSE_POSTGRES_PORT: ${DAGSTER_POSTGRES_PORT}
 
       DAGSTER_CURRENT_IMAGE: "${DAGSTER_CODE_ANALYTICS_NAME}_image"
-      DAGSTER_CODE_ANALYTICS_PORT: ${DAGSTER_CODE_ANALYTICS_PORT}
-      DAGSTER_CODE_ANALYTICS_NAME: ${DAGSTER_CODE_ANALYTICS_NAME}
+      DAGSTER_CODE_THIS_PORT: ${DAGSTER_CODE_ANALYTICS_PORT}
+      DAGSTER_CODE_THIS_NAME: ${DAGSTER_CODE_ANALYTICS_NAME}
     ports:
      - ${DAGSTER_CODE_ANALYTICS_PORT}:${DAGSTER_CODE_ANALYTICS_PORT}
     networks:
@@ -65,7 +72,7 @@ Follow this pattern to add another code location (code location):
 ```
 # New code location
 DAGSTER_CODE_ANALYTICS_NAME=analytics
-DAGSTER_CODE_ANALYTICS_PORT=4002
+DAGSTER_CODE_ANALYTICS_PORT=4001
 
 # Global/shared variables
 DAGSTER_POSTGRES_USER=postgres_user

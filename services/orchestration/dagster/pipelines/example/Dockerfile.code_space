@@ -4,11 +4,11 @@ FROM python:3.10-slim
 # exposing your repository to dagster-webserver and dagster-daemon, and to load the DagsterInstance
 
 # Build vars
-ARG DAGSTER_CODE_EXAMPLE_PORT
-ARG DAGSTER_CODE_EXAMPLE_NAME
+ARG DAGSTER_CODE_THIS_PORT
+ARG DAGSTER_CODE_THIS_NAME
 ARG DAGSTER_APP_PATH=/opt/dagster/app
-ARG CODE_SPACE=${DAGSTER_CODE_EXAMPLE_NAME#dagster_code_}
-ARG CODE_SPACE_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
+ARG CODE_SPACE=${DAGSTER_CODE_THIS_NAME#dagster_code_}
+ARG CODE_SPACE_PORT=${DAGSTER_CODE_THIS_PORT}
 
 # Add repository code
 COPY common ${DAGSTER_APP_PATH}/common
