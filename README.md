@@ -31,8 +31,9 @@ Follow this pattern to add another code location (code location):
 3. **Update New Code Location service:**  
  Duplicate the `dagster_code_example` service in the `docker-compose.yaml`, rename it (e.g., `dagster_code_analytics`), and update its settings (image name, build context, environment, port matching your new directory and variables if needed).
 4. **Update Dagster's Webserver and Daemon services:**  
- In `Dockerfile.dagster`, add the ARG and ENV variables for your new code location:
- Add ARG declarations after the existing example:
+ Update both `docker-compose.yaml` and `Dockerfile.dagster` for your new code location:
+ - In `docker-compose.yaml`: Add ARG variables for the build for the new code location
+ - In `Dockerfile.dagster`: Add ARG and ENV declarations after the existing example:
  ```
  ARG DAGSTER_CODE_ANALYTICS_PORT
  ARG DAGSTER_CODE_ANALYTICS_NAME
