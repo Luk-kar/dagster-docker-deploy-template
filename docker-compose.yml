@@ -25,6 +25,7 @@ services:
       interval: 10s
       timeout: 8s
       retries: 5
+    restart: ${RESTART_POLICY}
 
   # ======================================================================
   # This service runs the gRPC server that loads your user code, in both dagster-webserver
@@ -36,6 +37,7 @@ services:
   # ======================================================================
 
   dagster_code_example:
+    image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
     build:
       context: ./services/orchestration/dagster/pipelines
       dockerfile: ./example/Dockerfile.code_space
@@ -45,8 +47,6 @@ services:
     container_name: ${DAGSTER_CODE_EXAMPLE_NAME}
     ports:
       - ${DAGSTER_CODE_EXAMPLE_PORT}:${DAGSTER_CODE_EXAMPLE_PORT}
-    image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
-    restart: always
     volumes:
       - ./services/orchestration/dagster/pipelines/example:/opt/dagster/app/example
       - ./services/orchestration/dagster/pipelines/common:/opt/dagster/app/common
@@ -61,6 +61,7 @@ services:
       DAGSTER_CODE_THIS_NAME: ${DAGSTER_CODE_EXAMPLE_NAME}
     networks:
       - ${PIPELINE_NETWORK_NAME}
+    restart: ${RESTART_POLICY}
 
   # ======================================================================
   # This service runs dagster-webserver, which loads your user code from the user code container.
@@ -104,6 +105,7 @@ services:
         condition: service_healthy
       dagster_code_example:
         condition: service_started
+    restart: ${RESTART_POLICY}
 
   # ======================================================================
   # This service runs the dagster-daemon process, which is responsible for taking runs
@@ -123,7 +125,6 @@ services:
       - dagster-daemon
       - run
     container_name: dagster_daemon
-    restart: on-failure
     environment:
       DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
       DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
@@ -138,6 +139,7 @@ services:
         condition: service_healthy
       dagster_code_example:
         condition: service_started
+    restart: ${RESTART_POLICY}
 
 networks:
   pipeline_network:
