@@ -113,6 +113,7 @@ DAGSTER_POSTGRES_DB=postgres_db
 - Dynamic templating: Incorporates templating (e.g., Jinja) and scripts to generate configuration (`dagster.yaml` and `workspace.yaml`) and compose files more flexibly than a static example.  
 - Template orientation: Structured as a reusable starting point rather than a single fixed configuration in the Dagster monorepo example directory.
 - Same deployment model: Retains Dagster’s recommended Docker Compose topology (webserver, daemon, code locations, per‑run containers).
+- Added volume mounts for hot-reloading during development
 
 ## Tips
 
