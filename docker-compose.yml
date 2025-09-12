@@ -47,6 +47,9 @@ services:
       - ${DAGSTER_CODE_EXAMPLE_PORT}:${DAGSTER_CODE_EXAMPLE_PORT}
     image: "${DAGSTER_CODE_EXAMPLE_NAME}_image"
     restart: always
+    volumes:
+      - ./services/orchestration/dagster/pipelines/example:/opt/dagster/app/example
+      - ./services/orchestration/dagster/pipelines/common:/opt/dagster/app/common
     environment:
       WAREHOUSE_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
       WAREHOUSE_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}

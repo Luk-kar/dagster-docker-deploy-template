@@ -10,16 +10,23 @@ ARG DAGSTER_APP_PATH=/opt/dagster/app
 ARG CODE_SPACE=${DAGSTER_CODE_THIS_NAME#dagster_code_}
 ARG CODE_SPACE_PORT=${DAGSTER_CODE_THIS_PORT}
 
-# Add repository code
+# Install uv first
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+# Create necessary directories
+RUN mkdir -p ${DAGSTER_APP_PATH}/common ${DAGSTER_APP_PATH}/${CODE_SPACE}
+
+# Copy ONLY requirements files first (for better caching)
+COPY common/requirements.common.txt ${DAGSTER_APP_PATH}/common/requirements.common.txt
+COPY example/requirements.code_space.txt ${DAGSTER_APP_PATH}/${CODE_SPACE}/requirements.code_space.txt
+
+# Install dependencies (this layer will be cached if requirements don't change)
+RUN uv pip install --system -r ${DAGSTER_APP_PATH}/common/requirements.common.txt \
+    && uv pip install --system -r ${DAGSTER_APP_PATH}/${CODE_SPACE}/requirements.code_space.txt
+
+# Now copy the actual application code (after dependencies are installed and cached)
 COPY common ${DAGSTER_APP_PATH}/common
 COPY example ${DAGSTER_APP_PATH}/${CODE_SPACE}
-
-# Update to the latest Python libraries repo list
-RUN pip install --upgrade pip
-
-# Install libs
-RUN pip install -r ${DAGSTER_APP_PATH}/common/requirements.common.txt \
-    && pip install -r ${DAGSTER_APP_PATH}/${CODE_SPACE}/requirements.code_space.txt
 
 EXPOSE ${CODE_SPACE_PORT}
 
@@ -27,8 +34,8 @@ EXPOSE ${CODE_SPACE_PORT}
 WORKDIR ${DAGSTER_APP_PATH}
 ENV CODE_SPACE=${CODE_SPACE}
 ENV CODE_SPACE_PORT=${CODE_SPACE_PORT}
+ENV UV_SYSTEM_PYTHON=1
 
 # CMD allows this to be overridden from run launchers or executors that want
 # to run other commands against your repository
-CMD dagster api grpc -h 0.0.0.0 -p ${CODE_SPACE_PORT} -f ${CODE_SPACE}/definitions.py
-
+CMD dagster code-server start -h 0.0.0.0 -p ${CODE_SPACE_PORT} -f ${CODE_SPACE}/definitions.py

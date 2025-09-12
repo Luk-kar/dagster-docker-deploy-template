@@ -1,50 +1,54 @@
 # Dagster libraries to run both dagster-webserver and the dagster-daemon. Does not
 # need to have access to any pipeline code.
-
 FROM python:3.10-slim
 
-# Install Dagster and its dependencies
-RUN pip install --upgrade pip
-COPY requirements.control_plane.txt .
-RUN pip install -r requirements.control_plane.txt
+# Install uv first
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Install config generator dependencies
-COPY config_generators/requirements.config.txt ./config_generators/
-RUN pip install -r config_generators/requirements.config.txt
+# Copy ONLY requirements files first (for optimal caching)
+COPY requirements.control_plane.txt ./requirements.control_plane.txt
+COPY config_generators/requirements.config.txt ./config_generators/requirements.config.txt
 
-# Set $DAGSTER_HOME and copy dagster instance and workspace YAML there
+# Create directories needed for requirements installation
+RUN mkdir -p ./config_generators/
+
+# Install all Python dependencies (this layer will be cached if requirements don't change)
+RUN uv pip install --system -r requirements.control_plane.txt \
+    && uv pip install --system -r config_generators/requirements.config.txt
+
+# Set environment variables
+ENV UV_SYSTEM_PYTHON=1
 ENV DAGSTER_HOME=/opt/dagster/dagster_home/
+
+# Create necessary directories
 RUN mkdir -p $DAGSTER_HOME
 
-# Copy config generators and templates
+# Copy application code (after dependencies are cached)
 COPY config_generators/ ./config_generators/
 
-# Set environment variables for the build (these will be available during build)
+# Set build arguments and environment variables
 ARG DAGSTER_POSTGRES_PORT
 ARG PIPELINE_NETWORK_NAME
-
 ARG DAGSTER_CODE_EXAMPLE_PORT
 ARG DAGSTER_CODE_EXAMPLE_NAME
 # ARG DAGSTER_CODE_EXAMPLE_002_PORT <-- IMPORTANT!: Add new code space here
 # ARG DAGSTER_CODE_EXAMPLE_002_NAME
+
 # Expected pattern: DAGSTER_CODE_<IDENTIFIER>_NAME/CODE
-
-
 ENV DAGSTER_POSTGRES_PORT=${DAGSTER_POSTGRES_PORT}
 ENV PIPELINE_NETWORK_NAME=${PIPELINE_NETWORK_NAME}
-
 ENV DAGSTER_CODE_EXAMPLE_PORT=${DAGSTER_CODE_EXAMPLE_PORT}
 ENV DAGSTER_CODE_EXAMPLE_NAME=${DAGSTER_CODE_EXAMPLE_NAME}
 # ENV DAGSTER_CODE_EXAMPLE_002_PORT=${DAGSTER_CODE_EXAMPLE_002_PORT} <-- IMPORTANT!: Add new code space here
 # ENV DAGSTER_CODE_EXAMPLE_002_NAME=${DAGSTER_CODE_EXAMPLE_002_NAME}
 
-# Generate configuration files
+# Generate configuration files (these change when code or env vars change)
 WORKDIR /
-RUN python config_generators/dagster_generator.py
-RUN python config_generators/workspace_generator.py
+RUN python config_generators/dagster_generator.py \
+    && python config_generators/workspace_generator.py
 
 # Copy generated configuration files to DAGSTER_HOME
-RUN cp config_generators/dagster.yaml $DAGSTER_HOME/
-RUN cp config_generators/workspace.yaml $DAGSTER_HOME/
+RUN cp config_generators/dagster.yaml $DAGSTER_HOME/ \
+    && cp config_generators/workspace.yaml $DAGSTER_HOME/
 
 WORKDIR $DAGSTER_HOME
